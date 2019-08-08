@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.chtw.dao.StuDAO">
+	<select id="getAll" resultMap="stu">
+		select * from student
+	</select>
+	
+	<!-- 将数据库字段和实体类属性对应起来 -->
+	<resultMap type="com.chtw.pojo.Student" id="stu">
+		<id column="sid" property="sid"/>
+		<result column="sname" property="sname"/>
+		<result column="password" property="password"/>
+		<result column="score" property="score"/>
+	</resultMap>
+</mapper>

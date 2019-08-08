@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>分页显示数据</title>
+<link rel="stylesheet" type="text/css" href="/SSM/easyui/themes/default/easyui.css">
+	<link rel="stylesheet" type="text/css" href="/SSM/easyui/themes/icon.css">
+	<script type="text/javascript" src="/SSM/easyui/jquery.min.js"></script>
+	<script type="text/javascript" src="/SSM/easyui/jquery.easyui.min.js"></script>
+	<title>分页显示数据</title>
+</head>
+<body>
+<div align="center" style="margin: auto;">
+	<table id="dg" title="学生信息" style="width:90%;"
+			data-options="rownumbers:false,singleSelect:true,pagination:true,url:'/SSM/stu/fenye',method:'get',toolbar:'#tb'">
+		<thead>
+			<tr>
+				<th style="width:21%;" data-options="field:'sid',align:'center'">学 号</th>
+				<th style="width:30%;" data-options="field:'sname',align:'center'">姓 名</th>
+				<th style="width:30%;" data-options="field:'password',align:'center'">密 码</th>
+				<th style="width:20%;" data-options="field:'score',align:'center'">成 绩</th>
+			</tr>
+		</thead>
+	</table>
+	<div id="w" class="easyui-window" title="添加数据" data-options="iconCls:'icon-save'" style="width:500px;height:200px;padding:5px">
+		<div class="easyui-layout" data-options="fit:true">
+			<!-- <div data-options="region:'east',split:true" style="width:100px"></div> -->
+			<div id="message" data-options="region:'center'" style="padding:10px;font-size: 16px;">
+			<form id="add">
+				姓 名 : <input name="sname" class="easyui-textbox" data-options="prompt:'Enter name'" style="width:30%;height:32px">
+				密 码 : <input name="password" class="easyui-textbox" data-options="prompt:'Enter password'" style="width:30%;height:32px"><br>
+				<div style="margin-top: 10px;"></div>
+				成 绩 : <input name="score" class="easyui-textbox" data-options="prompt:'Enter score'" style="width:30%;height:32px">
+			</form>
+			</div>
+			<div data-options="region:'south',border:false" style="text-align:right;padding:5px 0 0;">
+				<a class="easyui-linkbutton" data-options="iconCls:'icon-ok'" href="javascript:void(0)" onclick="add()" style="width:80px">添 加</a>
+				<a class="easyui-linkbutton" data-options="iconCls:'icon-cancel'" href="javascript:void(0)" onclick="$('#w').window('close')" style="width:80px">取 消</a>
+			</div>
+		</div>
+	</div>
+	
+	<div id="w1" class="easyui-window" title="修改数据" data-options="iconCls:'icon-save'" style="width:500px;height:200px;padding:5px">
+		<div class="easyui-layout" data-options="fit:true">
+			<!-- <div data-options="region:'east',split:true" style="width:100px"></div> -->
+			<div data-options="region:'center'" style="padding:10px;font-size: 16px;">
+			<form id="edit">
+				学 号 : <input id="eid" name="sid" class="easyui-textbox" style="width:30%;height:32px" readonly="readonly">
+				姓 名 : <input id="esname" name="sname" class="easyui-textbox" style="width:30%;height:32px"><br>
+				<div style="margin-top: 10px;"></div>
+				密 码 : <input id="epassword" name="password" class="easyui-textbox" style="width:30%;height:32px">
+				成 绩 : <input id="escore" name="score" class="easyui-textbox" data-options="prompt:'Enter score'" style="width:30%;height:32px">
+			</form>
+			</div>
+			<div data-options="region:'south',border:false" style="text-align:right;padding:5px 0 0;">
+				<a class="easyui-linkbutton" data-options="iconCls:'icon-ok'" href="javascript:void(0)" onclick="edit()" style="width:80px">修 改</a>
+				<a class="easyui-linkbutton" data-options="iconCls:'icon-cancel'" href="javascript:void(0)" onclick="$('#w1').window('close')" style="width:80px">取 消</a>
+			</div>
+		</div>
+	</div>
+</div>
+	<script type="text/javascript">
+	function add(){
+		var row = $('#add').serialize()
+		$.post("/SSM/stu/add",row,function(data){
+			console.log(data)
+			if(data.code==1){
+				alert("添加成功！");
+			}
+			location.href="/SSM/jsp/show.html" 
+		});
+	}
+	function edit(){
+		var row = $('#edit').serialize()
+		$.post("/SSM/stu/edit",row,function(data){
+			console.log(data)
+			if(data.code==1){
+				alert("修改成功！");
+			}
+			location.href="/SSM/jsp/show.html" 
+		});
+	}
+		$(function(){
+			$('#w').window('close');
+			$('#w1').window('close');
+			var pager = $('#dg').datagrid().datagrid('getPager');	// get the pager of datagrid
+			pager.pagination({
+				buttons:[{
+					iconCls:'icon-remove',
+					handler:function(){
+						var row = $('#dg').datagrid('getSelected');
+						if(row!=null){
+							$.messager.confirm("操作提示", "您确定要删除该学生信息吗？", function (data) {
+								if (data) {
+									var sid = row.sid;
+									console.log(sid)
+									$.post("/SSM/stu/dele",row,function(data){
+										console.log(data)
+										if(data.code==1){
+											alert("删除成功！");
+										}
+										location.href="/SSM/jsp/show.html" 
+									});
+								}
+					    	});
+						}else{
+							$.messager.alert("操作提示", "操作失败！请至少选择一条！","error");
+						}
+						
+					}
+				},{
+					iconCls:'icon-add',
+					handler:function(){
+						$('#w').window('open')
+					}
+				},{
+					iconCls:'icon-edit',
+					handler:function(){
+						var row = $('#dg').datagrid('getSelected');
+						if(row!=null){
+							$.post("/SSM/stu/goedit",row,function(data){
+								if(data.code==1){
+									var stu = data.stu;
+									$('#w1').window('open')
+									$('#eid').textbox('setValue',stu.sid);
+									$("#esname").textbox('setValue',stu.sname);
+									$("#epassword").textbox('setValue',stu.password)
+									$("#escore").textbox('setValue',stu.score)
+								}
+							});
+						}else{
+							$.messager.alert("操作提示", "操作失败！请至少选择一条！","error");
+						}
+						
+					}
+				}]
+			});			
+		})
+	</script>
+</body>
+</html>
